@@ -33,7 +33,7 @@
       margin: 0 auto;
       padding: 16px;
       display: grid;
-      grid-template-columns: 1.1fr 1fr;
+      grid-template-columns: 1.15fr 1fr;
       grid-gap: 16px;
     }
     @media (max-width: 900px) {
@@ -136,6 +136,9 @@
       margin-right: 4px;
       margin-bottom: 4px;
     }
+    .preset-buttons button {
+      margin-bottom: 4px;
+    }
   </style>
 </head>
 <body>
@@ -158,6 +161,31 @@
         other assets (e.g. gold/silver). The output is an AcePi-style JSON entry you can paste into
         your AcePi payload.
       </p>
+
+      <h3>Quick Preset Templates</h3>
+      <div class="muted">
+        Tap a preset to auto-fill the form, then adjust as needed.
+      </div>
+      <div class="preset-buttons" style="margin-top:6px;margin-bottom:12px;">
+        <button class="btn-secondary" type="button" onclick="applyPreset('btc_sale_binance')">
+          ₿ BTC sale via Binance
+        </button>
+        <button class="btn-secondary" type="button" onclick="applyPreset('usdt_bybit_income')">
+          USDT income from Bybit
+        </button>
+        <button class="btn-secondary" type="button" onclick="applyPreset('pi_instore_sale')">
+          Pi in-store sale
+        </button>
+        <button class="btn-secondary" type="button" onclick="applyPreset('acca_gbp_fee')">
+          ACCA fee (GBP → NGN)
+        </button>
+        <button class="btn-secondary" type="button" onclick="applyPreset('ican_ngn_fee')">
+          ICAN fee (NGN)
+        </button>
+        <button class="btn-secondary" type="button" onclick="applyPreset('amazon_usd_office')">
+          Amazon office electronics (USD)
+        </button>
+      </div>
 
       <h3>Context</h3>
       <div class="split">
@@ -218,14 +246,40 @@
         </div>
         <div>
           <label for="assetSymbol">Currency / Token / Asset Symbol</label>
-          <input id="assetSymbol" placeholder="NGN, USD, USDC, BTC, PI, GOLD..." />
+          <input id="assetSymbol" list="assetList" placeholder="NGN, USD, USDC, BTC, PI, GOLD..." />
+          <datalist id="assetList">
+            <!-- Fiat -->
+            <option value="NGN"></option>
+            <option value="USD"></option>
+            <option value="GBP"></option>
+            <option value="EUR"></option>
+            <option value="GHS"></option>
+            <option value="KES"></option>
+            <!-- Majors & stables -->
+            <option value="BTC"></option>
+            <option value="ETH"></option>
+            <option value="BNB"></option>
+            <option value="SOL"></option>
+            <option value="MATIC"></option>
+            <option value="TRX"></option>
+            <option value="USDT"></option>
+            <option value="USDC"></option>
+            <option value="DAI"></option>
+            <option value="TON"></option>
+            <option value="PI"></option>
+            <option value="XRP"></option>
+            <option value="ADA"></option>
+            <!-- Commodities -->
+            <option value="GOLD"></option>
+            <option value="SILVER"></option>
+          </datalist>
         </div>
       </div>
 
       <div class="split">
         <div>
           <label for="amount">Amount (asset units)</label>
-          <input id="amount" type="number" step="0.00000001" placeholder="e.g. 350000 or 1500" />
+          <input id="amount" type="number" step="0.00000001" placeholder="e.g. 350000 or 0.01" />
         </div>
         <div>
           <label for="date">Date</label>
@@ -242,6 +296,10 @@
             <option value="base">Base</option>
             <option value="eth">Ethereum</option>
             <option value="bsc">BSC</option>
+            <option value="btc">Bitcoin</option>
+            <option value="sol">Solana</option>
+            <option value="polygon">Polygon</option>
+            <option value="tron">Tron</option>
             <option value="ton">TON</option>
             <option value="pi">Pi Network</option>
           </select>
@@ -339,7 +397,7 @@
         4️⃣ Export JSON → feed ACA Brain & Ace Insights.
       </div>
 
-      <h3>Rails Snapshot</h3>
+      <h3>Rails Snapshot (Batch)</h3>
       <div id="railsSnapshot" class="muted">(no batch yet)</div>
     </section>
   </main>
@@ -376,6 +434,157 @@
     let batchEntries = [];
     let nextIdCounter = 1;
 
+    function applyPreset(preset) {
+      // Reset basic form first
+      directionEl.value = "in";
+      purposeEl.value = "goods";
+      payerEl.value = "";
+      payeeEl.value = "";
+      countryEl.value = "NG";
+      baseCurrencyEl.value = "NGN";
+      assetTypeEl.value = "fiat";
+      assetSymbolEl.value = "";
+      amountEl.value = "";
+      dateEl.value = "";
+      chainEl.value = "";
+      channelEl.value = "bank_transfer";
+      fxCurrencyEl.value = "";
+      fxRateEl.value = "";
+      railFeeEl.value = "";
+      networkFeeEl.value = "";
+      descriptionEl.value = "";
+
+      const today = new Date().toISOString().slice(0, 10);
+
+      switch (preset) {
+        case "btc_sale_binance":
+          directionEl.value = "in";
+          purposeEl.value = "goods";
+          payerEl.value = "Retail customer (BTC)";
+          payeeEl.value = "Ace Hybrid Store";
+          countryEl.value = "NG";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "crypto";
+          assetSymbolEl.value = "BTC";
+          amountEl.value = "0.01";
+          dateEl.value = today;
+          chainEl.value = "btc";
+          channelEl.value = "binance";
+          fxCurrencyEl.value = "BTC";
+          fxRateEl.value = "50000000"; // example: 1 BTC = 50,000,000 NGN (adjust as needed)
+          railFeeEl.value = "0";
+          networkFeeEl.value = "0.0005";
+          descriptionEl.value = "BTC sale via Binance for in-store goods";
+          break;
+
+        case "usdt_bybit_income":
+          directionEl.value = "in";
+          purposeEl.value = "investment";
+          payerEl.value = "Bybit trading account";
+          payeeEl.value = "Ace Treasury Wallet";
+          countryEl.value = "NG";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "stablecoin";
+          assetSymbolEl.value = "USDT";
+          amountEl.value = "500";
+          dateEl.value = today;
+          chainEl.value = "eth";
+          channelEl.value = "bybit";
+          fxCurrencyEl.value = "USDT";
+          fxRateEl.value = "1500";
+          railFeeEl.value = "0";
+          networkFeeEl.value = "0.00021";
+          descriptionEl.value = "USDT transfer from Bybit trading profits to business wallet";
+          break;
+
+        case "pi_instore_sale":
+          directionEl.value = "in";
+          purposeEl.value = "goods";
+          payerEl.value = "Walk-in customer (Pi)";
+          payeeEl.value = "Ace Hybrid Store";
+          countryEl.value = "NG";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "crypto";
+          assetSymbolEl.value = "PI";
+          amountEl.value = "60";
+          dateEl.value = today;
+          chainEl.value = "pi";
+          channelEl.value = "pi";
+          fxCurrencyEl.value = "PI";
+          fxRateEl.value = "1000";
+          railFeeEl.value = "0";
+          networkFeeEl.value = "0";
+          descriptionEl.value = "In-store Pi Network payment for goods (valued in NGN)";
+          break;
+
+        case "acca_gbp_fee":
+          directionEl.value = "out";
+          purposeEl.value = "exam_fees";
+          payerEl.value = "Ace Consulting & Analytics (ACA)";
+          payeeEl.value = "ACCA (UK)";
+          countryEl.value = "NG";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "fiat";
+          assetSymbolEl.value = "GBP";
+          amountEl.value = "1000";
+          dateEl.value = today;
+          chainEl.value = "";
+          channelEl.value = "bank_transfer";
+          fxCurrencyEl.value = "GBP";
+          fxRateEl.value = "1800"; // example: 1 GBP = 1800 NGN
+          railFeeEl.value = "5000";
+          networkFeeEl.value = "0";
+          descriptionEl.value = "ACCA annual subscription and exam fee paid in GBP (converted to NGN)";
+          break;
+
+        case "ican_ngn_fee":
+          directionEl.value = "out";
+          purposeEl.value = "exam_fees";
+          payerEl.value = "Ace Consulting & Analytics (ACA)";
+          payeeEl.value = "ICAN Nigeria";
+          countryEl.value = "NG";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "fiat";
+          assetSymbolEl.value = "NGN";
+          amountEl.value = "180000";
+          dateEl.value = today;
+          chainEl.value = "";
+          channelEl.value = "card";
+          fxCurrencyEl.value = "NGN";
+          fxRateEl.value = "1";
+          railFeeEl.value = "0";
+          networkFeeEl.value = "0";
+          descriptionEl.value = "ICAN exam registration paid locally in NGN";
+          break;
+
+        case "amazon_usd_office":
+          directionEl.value = "out";
+          purposeEl.value = "goods";
+          payerEl.value = "Ace Consulting & Analytics (ACA)";
+          payeeEl.value = "Amazon US";
+          countryEl.value = "US";
+          baseCurrencyEl.value = "NGN";
+          assetTypeEl.value = "fiat";
+          assetSymbolEl.value = "USD";
+          amountEl.value = "200";
+          dateEl.value = today;
+          chainEl.value = "";
+          channelEl.value = "amazon";
+          fxCurrencyEl.value = "USD";
+          fxRateEl.value = "1600"; // example: 1 USD = 1600 NGN
+          railFeeEl.value = "0";
+          networkFeeEl.value = "0";
+          descriptionEl.value = "Electronics for office purchased on Amazon (USD, converted to NGN)";
+          break;
+
+        default:
+          // no-op
+          break;
+      }
+
+      statusEl.textContent = `Preset applied: ${preset}`;
+    }
+
     function buildAcePiEntry() {
       const direction = directionEl.value;
       const purpose = purposeEl.value;
@@ -402,7 +611,6 @@
 
       const id = `PAY-${String(nextIdCounter).padStart(3, "0")}`;
 
-      // Build FX block
       let fxBlock = null;
       if (fxCurrency && fxRate && fxRate > 0) {
         const fxAmount = amount;
@@ -417,7 +625,6 @@
         };
       }
 
-      // Very simple mapping for counterparty_type
       let counterpartyType = "other";
       if (direction === "in") counterpartyType = "customer";
       else {
@@ -427,7 +634,6 @@
         else if (purpose === "investment") counterpartyType = "exchange";
       }
 
-      // Build entry
       const entry = {
         id,
         date,
