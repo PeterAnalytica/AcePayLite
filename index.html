@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>AcePay Lite – Multi-Rail Payment Designer for AcePi Suite</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    body {
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #020617;
+      color: #e5e7eb;
+    }
+    header {
+      padding: 16px 24px;
+      background: #020617;
+      border-bottom: 1px solid #1f2937;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    header h1 {
+      margin: 0;
+      font-size: 18px;
+    }
+    header span {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    main {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 16px;
+      display: grid;
+      grid-template-columns: 1.1fr 1fr;
+      grid-gap: 16px;
+    }
+    @media (max-width: 900px) {
+      main {
+        grid-template-columns: 1fr;
+      }
+    }
+    .card {
+      background: #020617;
+      border-radius: 14px;
+      border: 1px solid #1f2937;
+      padding: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.3);
+    }
+    .card h2 {
+      margin-top: 0;
+      font-size: 16px;
+    }
+    .card h3 {
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+    label {
+      display: block;
+      font-size: 12px;
+      margin-bottom: 3px;
+      opacity: 0.9;
+    }
+    input, select, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      border-radius: 8px;
+      border: 1px solid #374151;
+      background: #020617;
+      color: #e5e7eb;
+      padding: 6px 8px;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+    textarea {
+      min-height: 60px;
+      resize: vertical;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .split {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-gap: 8px;
+    }
+    button {
+      border-radius: 999px;
+      border: none;
+      padding: 8px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      background: #22c55e;
+      color: #022c22;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-right: 6px;
+      margin-top: 4px;
+    }
+    button.btn-secondary {
+      background: #0f172a;
+      color: #e5e7eb;
+      border: 1px solid #374151;
+    }
+    button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    .muted {
+      opacity: 0.8;
+      font-size: 12px;
+    }
+    pre {
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid #111827;
+      padding: 10px;
+      font-size: 11px;
+      max-height: 280px;
+      overflow: auto;
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    .status {
+      font-size: 12px;
+      margin-top: 6px;
+      min-height: 18px;
+    }
+    .pill {
+      display: inline-flex;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 11px;
+      border: 1px solid #4b5563;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div>
+      <h1>AcePay Lite</h1>
+      <span>Multi-rail payment & settlement designer – generates AcePi-ready JSON entries</span>
+    </div>
+    <div style="text-align:right;font-size:11px;opacity:0.8;">
+      Ace Consulting & Analytics (ACA)<br />
+      Part of AcePi Suite, feeding ACA Brain & Ace Insights
+    </div>
+  </header>
+
+  <main>
+    <section class="card">
+      <h2>1. Design Payment Scenario</h2>
+      <p class="muted">
+        Use AcePay Lite to design a single payment or receipt across fiat, crypto, stablecoins or
+        other assets (e.g. gold/silver). The output is an AcePi-style JSON entry you can paste into
+        your AcePi payload.
+      </p>
+
+      <h3>Context</h3>
+      <div class="split">
+        <div>
+          <label for="direction">Direction</label>
+          <select id="direction">
+            <option value="in">Incoming (customer paying you)</option>
+            <option value="out">Outgoing (you paying supplier / fees / exams)</option>
+          </select>
+        </div>
+        <div>
+          <label for="purpose">Purpose</label>
+          <select id="purpose">
+            <option value="goods">Goods / products</option>
+            <option value="services">Services / professional fees</option>
+            <option value="tuition">Tuition / education</option>
+            <option value="exam_fees">Exam / certification fees (ACCA, ICAN, CFA, SAT, TOEFL, etc.)</option>
+            <option value="subscription">Subscriptions (Wix, Investopedia, SaaS)</option>
+            <option value="investment">Investment / trading transfer</option>
+            <option value="wallet_move">Wallet / exchange internal move</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <label for="payer">Payer / Source</label>
+          <input id="payer" placeholder="Customer, ACA, Binance account, etc." />
+        </div>
+        <div>
+          <label for="payee">Payee / Destination</label>
+          <input id="payee" placeholder="Supplier, exam body, wallet, etc." />
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <label for="country">Tax Country (2–3 letter code)</label>
+          <input id="country" placeholder="NG, US, UK, etc." value="NG" />
+        </div>
+        <div>
+          <label for="baseCurrency">Base Currency</label>
+          <input id="baseCurrency" placeholder="NGN, USD, GBP..." value="NGN" />
+        </div>
+      </div>
+
+      <h3>Asset & Amount</h3>
+      <div class="split">
+        <div>
+          <label for="assetType">Asset Type</label>
+          <select id="assetType">
+            <option value="fiat">Fiat</option>
+            <option value="crypto">Crypto</option>
+            <option value="stablecoin">Stablecoin</option>
+            <option value="commodity">Commodity (gold/silver)</option>
+          </select>
+        </div>
+        <div>
+          <label for="assetSymbol">Currency / Token / Asset Symbol</label>
+          <input id="assetSymbol" placeholder="NGN, USD, USDC, BTC, PI, GOLD..." />
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <label for="amount">Amount (asset units)</label>
+          <input id="amount" type="number" step="0.00000001" placeholder="e.g. 350000 or 1500" />
+        </div>
+        <div>
+          <label for="date">Date</label>
+          <input id="date" type="date" />
+        </div>
+      </div>
+
+      <h3>Rails – Chain & Channel</h3>
+      <div class="split">
+        <div>
+          <label for="chain">Chain</label>
+          <select id="chain">
+            <option value="">OFFCHAIN (bank / card / POS)</option>
+            <option value="base">Base</option>
+            <option value="eth">Ethereum</option>
+            <option value="bsc">BSC</option>
+            <option value="ton">TON</option>
+            <option value="pi">Pi Network</option>
+          </select>
+        </div>
+        <div>
+          <label for="channel">Payment Channel</label>
+          <select id="channel">
+            <option value="bank_transfer">Bank transfer</option>
+            <option value="pos">POS</option>
+            <option value="card">Card</option>
+            <option value="cash">Cash</option>
+            <option value="paystack">Paystack</option>
+            <option value="opay">Opay</option>
+            <option value="paga">Paga</option>
+            <option value="binance">Binance</option>
+            <option value="bybit">Bybit</option>
+            <option value="okx">OKX</option>
+            <option value="metamask">MetaMask</option>
+            <option value="ton_wallet">TON Wallet</option>
+            <option value="pi">Pi App / Wallet</option>
+            <option value="amazon">Amazon</option>
+            <option value="alibaba">Alibaba</option>
+            <option value="wix">Wix</option>
+            <option value="investopedia">Investopedia</option>
+            <option value="nvidia">NVIDIA Store</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+      </div>
+
+      <h3>FX & Fees (optional)</h3>
+      <div class="split">
+        <div>
+          <label for="fxCurrency">FX Currency (if different from base)</label>
+          <input id="fxCurrency" placeholder="USD, GBP, USDT, PI..." />
+        </div>
+        <div>
+          <label for="fxRate">FX Rate → Base</label>
+          <input id="fxRate" type="number" step="0.0001" placeholder="e.g. 1500 means 1 FX = 1500 base" />
+        </div>
+      </div>
+
+      <div class="split">
+        <div>
+          <label for="railFee">Rail / Channel Fee (in base currency)</label>
+          <input id="railFee" type="number" step="0.01" placeholder="e.g. 250.00" />
+        </div>
+        <div>
+          <label for="networkFee">Network Fee (gas, etc. in asset units)</label>
+          <input id="networkFee" type="number" step="0.00000001" placeholder="e.g. 0.0003" />
+        </div>
+      </div>
+
+      <label for="description">Narrative / Description</label>
+      <textarea id="description" placeholder="Short description of what this payment is about..."></textarea>
+
+      <div style="margin-top:6px;">
+        <button id="buildBtn">⚙ Build AcePi JSON Entry</button>
+        <button id="addToBatchBtn" class="btn-secondary">➕ Add to Batch</button>
+        <button id="clearBtn" class="btn-secondary">Clear Form</button>
+      </div>
+
+      <div class="status" id="status"></div>
+
+      <h3>Quick Hints</h3>
+      <div class="muted">
+        • Use <strong>Direction = in</strong> for income (customer → you) and <strong>out</strong> for expenses.<br />
+        • Use <strong>Purpose = exam_fees / tuition</strong> for ACCA, ICAN, CFA, SAT, TOEFL, etc.<br />
+        • Use <strong>Channel = binance / bybit / okx / metamask / pi</strong> for on-chain or exchange flows.<br />
+        • The JSON output can be pasted into your AcePi payload under <code>transactions</code>.
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>2. Output – AcePi-Ready JSON</h2>
+
+      <h3>Single Entry JSON</h3>
+      <pre id="singleOutput">(build a scenario to see JSON)</pre>
+
+      <h3>Batch Entries JSON (for multiple scenarios)</h3>
+      <pre id="batchOutput">[]</pre>
+
+      <div>
+        <button id="copySingleBtn" class="btn-secondary">📋 Copy Single Entry</button>
+        <button id="copyBatchBtn" class="btn-secondary">📋 Copy Batch Array</button>
+      </div>
+
+      <h3>How to use with AcePi</h3>
+      <div class="muted">
+        1️⃣ In AcePi Suite, open your payload JSON.<br />
+        2️⃣ Under <code>"transactions": [ ... ]</code>, paste either:<br />
+        • A single entry from above, or<br />
+        • Multiple entries from the batch array.<br />
+        3️⃣ Run AcePi to classify, post and generate tax/FX/chain analytics.<br />
+        4️⃣ Export JSON → feed ACA Brain & Ace Insights.
+      </div>
+
+      <h3>Rails Snapshot</h3>
+      <div id="railsSnapshot" class="muted">(no batch yet)</div>
+    </section>
+  </main>
+
+  <script>
+    const directionEl = document.getElementById("direction");
+    const purposeEl = document.getElementById("purpose");
+    const payerEl = document.getElementById("payer");
+    const payeeEl = document.getElementById("payee");
+    const countryEl = document.getElementById("country");
+    const baseCurrencyEl = document.getElementById("baseCurrency");
+    const assetTypeEl = document.getElementById("assetType");
+    const assetSymbolEl = document.getElementById("assetSymbol");
+    const amountEl = document.getElementById("amount");
+    const dateEl = document.getElementById("date");
+    const chainEl = document.getElementById("chain");
+    const channelEl = document.getElementById("channel");
+    const fxCurrencyEl = document.getElementById("fxCurrency");
+    const fxRateEl = document.getElementById("fxRate");
+    const railFeeEl = document.getElementById("railFee");
+    const networkFeeEl = document.getElementById("networkFee");
+    const descriptionEl = document.getElementById("description");
+
+    const buildBtn = document.getElementById("buildBtn");
+    const addToBatchBtn = document.getElementById("addToBatchBtn");
+    const clearBtn = document.getElementById("clearBtn");
+    const statusEl = document.getElementById("status");
+    const singleOutputEl = document.getElementById("singleOutput");
+    const batchOutputEl = document.getElementById("batchOutput");
+    const copySingleBtn = document.getElementById("copySingleBtn");
+    const copyBatchBtn = document.getElementById("copyBatchBtn");
+    const railsSnapshotEl = document.getElementById("railsSnapshot");
+
+    let batchEntries = [];
+    let nextIdCounter = 1;
+
+    function buildAcePiEntry() {
+      const direction = directionEl.value;
+      const purpose = purposeEl.value;
+      const payer = payerEl.value.trim();
+      const payee = payeeEl.value.trim();
+      const country = countryEl.value.trim() || "NG";
+      const baseCurrency = baseCurrencyEl.value.trim() || "NGN";
+      const assetType = assetTypeEl.value;
+      const assetSymbol = assetSymbolEl.value.trim() || baseCurrency;
+      const amount = Number(amountEl.value || 0);
+      const date = dateEl.value || new Date().toISOString().slice(0, 10);
+      const chain = (chainEl.value || "").trim();
+      const channel = (channelEl.value || "").trim() || "other";
+      const fxCurrency = fxCurrencyEl.value.trim();
+      const fxRate = Number(fxRateEl.value || 0);
+      const railFee = Number(railFeeEl.value || 0);
+      const networkFee = Number(networkFeeEl.value || 0);
+      const description = descriptionEl.value.trim() ||
+        buildDefaultDescription(direction, purpose, channel, assetSymbol);
+
+      if (!amount || amount <= 0) {
+        throw new Error("Amount must be greater than zero.");
+      }
+
+      const id = `PAY-${String(nextIdCounter).padStart(3, "0")}`;
+
+      // Build FX block
+      let fxBlock = null;
+      if (fxCurrency && fxRate && fxRate > 0) {
+        const fxAmount = amount;
+        const baseFromFx = fxAmount * fxRate;
+        fxBlock = {
+          fx_currency: fxCurrency,
+          fx_amount: +fxAmount.toFixed(8),
+          fx_rate_to_base: +fxRate.toFixed(4),
+          base_amount_from_fx: +baseFromFx.toFixed(2),
+          recorded_base_amount: +baseFromFx.toFixed(2),
+          fx_fee: +railFee.toFixed(2) || 0
+        };
+      }
+
+      // Very simple mapping for counterparty_type
+      let counterpartyType = "other";
+      if (direction === "in") counterpartyType = "customer";
+      else {
+        if (purpose === "services" || purpose === "goods") counterpartyType = "supplier";
+        else if (purpose === "exam_fees" || purpose === "tuition") counterpartyType = "education_institution";
+        else if (purpose === "subscription") counterpartyType = "information_service";
+        else if (purpose === "investment") counterpartyType = "exchange";
+      }
+
+      // Build entry
+      const entry = {
+        id,
+        date,
+        amount: +amount.toFixed(8),
+        currency: assetSymbol,
+        description,
+        direction,
+        counterparty_type: counterpartyType,
+        payment_channel: channel,
+        tax_country: country || "Unknown"
+      };
+
+      if (chain) entry.chain = chain;
+      if (assetType === "crypto" || assetType === "stablecoin" || assetType === "commodity") {
+        entry.token_symbol = assetSymbol;
+      }
+
+      if (networkFee) {
+        entry.gas_fee = +networkFee.toFixed(8);
+        entry.gas_currency = assetSymbol;
+      }
+
+      if (fxBlock) {
+        entry.fx = fxBlock;
+      }
+
+      return entry;
+    }
+
+    function buildDefaultDescription(direction, purpose, channel, assetSymbol) {
+      const dirText = direction === "in" ? "receipt" : "payment";
+      const purpText = purpose.replace("_", " ");
+      return `${dirText} for ${purpText} via ${channel} in ${assetSymbol}`.trim();
+    }
+
+    buildBtn.addEventListener("click", () => {
+      try {
+        const entry = buildAcePiEntry();
+        singleOutputEl.textContent = JSON.stringify(entry, null, 2);
+        statusEl.textContent = `Built single AcePi-style entry with id ${entry.id}.`;
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+      }
+    });
+
+    addToBatchBtn.addEventListener("click", () => {
+      try {
+        const entry = buildAcePiEntry();
+        batchEntries.push(entry);
+        nextIdCounter++;
+        batchOutputEl.textContent = JSON.stringify(batchEntries, null, 2);
+        singleOutputEl.textContent = JSON.stringify(entry, null, 2);
+        statusEl.textContent = `Added entry ${entry.id} to batch. Batch size: ${batchEntries.length}.`;
+        updateRailsSnapshot();
+      } catch (err) {
+        statusEl.textContent = "Error: " + err.message;
+      }
+    });
+
+    clearBtn.addEventListener("click", () => {
+      directionEl.value = "in";
+      purposeEl.value = "goods";
+      payerEl.value = "";
+      payeeEl.value = "";
+      countryEl.value = "NG";
+      baseCurrencyEl.value = "NGN";
+      assetTypeEl.value = "fiat";
+      assetSymbolEl.value = "";
+      amountEl.value = "";
+      dateEl.value = "";
+      chainEl.value = "";
+      channelEl.value = "bank_transfer";
+      fxCurrencyEl.value = "";
+      fxRateEl.value = "";
+      railFeeEl.value = "";
+      networkFeeEl.value = "";
+      descriptionEl.value = "";
+      statusEl.textContent = "Form cleared. Batch not cleared.";
+    });
+
+    copySingleBtn.addEventListener("click", () => {
+      const text = singleOutputEl.textContent.trim();
+      if (!text || text.startsWith("(build")) {
+        statusEl.textContent = "No single entry to copy yet.";
+        return;
+      }
+      copyToClipboard(text);
+      statusEl.textContent = "Single entry copied to clipboard.";
+    });
+
+    copyBatchBtn.addEventListener("click", () => {
+      const text = batchOutputEl.textContent.trim();
+      if (!text || text === "[]") {
+        statusEl.textContent = "Batch is empty – nothing to copy.";
+        return;
+      }
+      copyToClipboard(text);
+      statusEl.textContent = "Batch JSON array copied to clipboard.";
+    });
+
+    function copyToClipboard(text) {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).catch(() => {});
+      } else {
+        const temp = document.createElement("textarea");
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(temp);
+      }
+    }
+
+    function updateRailsSnapshot() {
+      if (!batchEntries.length) {
+        railsSnapshotEl.textContent = "(no batch yet)";
+        return;
+      }
+      const perChain = {};
+      const perChannel = {};
+
+      batchEntries.forEach(e => {
+        const amt = Number(e.amount || 0);
+        const dir = e.direction || null;
+        const inflow = dir === "in" ? amt : 0;
+        const outflow = dir === "out" ? amt : 0;
+
+        const chain = (e.chain || "OFFCHAIN").toUpperCase();
+        if (!perChain[chain]) perChain[chain] = { count: 0, inflows: 0, outflows: 0 };
+        perChain[chain].count++;
+        perChain[chain].inflows += inflow;
+        perChain[chain].outflows += outflow;
+
+        const channel = (e.payment_channel || "unknown").toLowerCase();
+        if (!perChannel[channel]) perChannel[channel] = { count: 0, inflows: 0, outflows: 0 };
+        perChannel[channel].count++;
+        perChannel[channel].inflows += inflow;
+        perChannel[channel].outflows += outflow;
+      });
+
+      const chainKeys = Object.keys(perChain).sort();
+      const chanKeys = Object.keys(perChannel).sort();
+
+      let html = "<strong>Batch by chain:</strong><br />";
+      chainKeys.forEach(ch => {
+        const b = perChain[ch];
+        html += `<span class="pill">${ch}: tx=${b.count}, in=${b.inflows.toFixed(2)}, out=${b.outflows.toFixed(2)}</span>`;
+      });
+
+      html += "<br /><br /><strong>Batch by payment channel:</strong><br />";
+      chanKeys.forEach(ch => {
+        const b = perChannel[ch];
+        html += `<span class="pill">${ch}: tx=${b.count}, in=${b.inflows.toFixed(2)}, out=${b.outflows.toFixed(2)}</span>`;
+      });
+
+      railsSnapshotEl.innerHTML = html;
+    }
+  </script>
+</body>
+</html>
